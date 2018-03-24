@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import Speech
 
-class ViewController: UIViewController {
+class ViewController: UIViewController{
   let synth = AVSpeechSynthesizer()
   let audioEngine = AVAudioEngine()
   let speechRecognizer: SFSpeechRecognizer? = SFSpeechRecognizer()
@@ -38,7 +38,6 @@ class ViewController: UIViewController {
     userText = AVSpeechUtterance(string: userTextField.text!)
     userText.rate = 0.3
     synth.speak(userText)
-    self.userTextField.text = ""
   }
 
   @IBAction func listenForSpeech(_ sender: Any) {
@@ -124,9 +123,11 @@ class ViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
+    synth.delegate = self
     // Do any additional setup after loading the view, typically from a nib.
     self.spinner.hidesWhenStopped = true
     userTextField.becomeFirstResponder()
+//    userTextField.clearButtonMode = UITextFieldViewModeWhileEditing
 
     switch SFSpeechRecognizer.authorizationStatus() {
     case .notDetermined:
@@ -144,5 +145,11 @@ class ViewController: UIViewController {
   }
 
 
+}
+extension ViewController: AVSpeechSynthesizerDelegate {
+
+  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+    self.listenForSpeech(self)
+  }
 }
 
