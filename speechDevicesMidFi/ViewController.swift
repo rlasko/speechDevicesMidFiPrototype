@@ -127,7 +127,7 @@ class ViewController: UIViewController{
     // Do any additional setup after loading the view, typically from a nib.
     self.spinner.hidesWhenStopped = true
     userTextField.becomeFirstResponder()
-//    userTextField.clearButtonMode = UITextFieldViewModeWhileEditing
+    userTextField.clearButtonMode = .always
 
     switch SFSpeechRecognizer.authorizationStatus() {
     case .notDetermined:
