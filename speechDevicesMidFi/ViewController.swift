@@ -18,6 +18,7 @@ class ViewController: UIViewController{
   var recognitionTask: SFSpeechRecognitionTask?
   var userText = AVSpeechUtterance(string: "")
 
+
   enum Status {
     case listening
     case ready
@@ -36,7 +37,12 @@ class ViewController: UIViewController{
 
   @IBAction func sayItClicked(_ sender: Any) {
     userText = AVSpeechUtterance(string: userTextField.text!)
-    userText.rate = 0.3
+    if (self.status == .listening) {
+      cancelRecording()
+    }
+    userText.rate = 0.4
+    let message = String(format: "**User says: %@", arguments: [userText])
+    print(message)
     synth.speak(userText)
   }
 
@@ -59,11 +65,14 @@ class ViewController: UIViewController{
   }
 
   func cancelRecording() {
+    let message = String(format: "**Alexa says: %@", arguments: [self.detectedTextField.text])
+    print(message)
     request.endAudio()
     request = SFSpeechAudioBufferRecognitionRequest()
     audioEngine.stop()
     audioEngine.inputNode.removeTap(onBus: 0)
     recognitionTask?.cancel()
+    self.status = .ready
   }
 
   func recordAndRecognizeSpeech() {
@@ -126,8 +135,16 @@ class ViewController: UIViewController{
     synth.delegate = self
     // Do any additional setup after loading the view, typically from a nib.
     self.spinner.hidesWhenStopped = true
+    do {
+      try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord, with: AVAudioSessionCategoryOptions.defaultToSpeaker)
+    }
+    catch {
+      print("could not use speaker")
+    }
+
     userTextField.becomeFirstResponder()
     userTextField.clearButtonMode = .always
+
 
     switch SFSpeechRecognizer.authorizationStatus() {
     case .notDetermined:
@@ -143,7 +160,6 @@ class ViewController: UIViewController{
     super.didReceiveMemoryWarning()
     // Dispose of any resources that can be recreated.
   }
-
 
 }
 extension ViewController: AVSpeechSynthesizerDelegate {
